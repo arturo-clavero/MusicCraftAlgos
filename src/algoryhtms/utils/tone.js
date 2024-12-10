@@ -38,27 +38,27 @@ class Song {
 		else
 			console.log(`song was already stopped`);
 	}
-	getEnergy(){
-		let waveform = this.analyser.getValue();
-		return(waveform.reduce((sum, val) => sum + Math.abs(val), 0) / waveform.length);
-	}
-	getPitch(){
-		const fftData = this.analyser.getValue();
-    	let sum = 0;
-    	let totalAmplitude = 0;
-		for (let i = 0; i < fftData.length; i++) {
-			const amplitude = Math.abs(fftData[i]);
-			const frequency = (i / fftData.length) * Tone.context.sampleRate / 2;
-			sum += frequency * amplitude;
-			totalAmplitude += amplitude;
-		}
-		const pitch = sum / totalAmplitude;
-	}
-	pitchToColor(r, g, b){
-		console.log(`pitcht to color`);
-		const hue = (Tone.Frequency(this.getPitch()).toFrequency() % 360);
-		hueToRGB(hue, r, g, b);
-	}
+	// getEnergy(){
+	// 	let waveform = this.analyser.getValue();
+	// 	return(waveform.reduce((sum, val) => sum + Math.abs(val), 0) / waveform.length);
+	// }
+	// getPitch(){
+	// 	const fftData = this.analyser.getValue();
+    // 	let sum = 0;
+    // 	let totalAmplitude = 0;
+	// 	for (let i = 0; i < fftData.length; i++) {
+	// 		const amplitude = Math.abs(fftData[i]);
+	// 		const frequency = (i / fftData.length) * Tone.context.sampleRate / 2;
+	// 		sum += frequency * amplitude;
+	// 		totalAmplitude += amplitude;
+	// 	}
+	// 	const pitch = sum / totalAmplitude;
+	// }
+	// pitchToColor(r, g, b){
+	// 	console.log(`pitcht to color`);
+	// 	const hue = (Tone.Frequency(this.getPitch()).toFrequency() % 360);
+	// 	hueToRGB(hue, r, g, b);
+	// }
 }
 
 export default Song;

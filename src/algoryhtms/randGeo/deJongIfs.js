@@ -48,20 +48,12 @@ export function drawTheme2(p, song) {
 	let x = 0, y = 0;
 	isBoring(pointsX, pointsY, p);
 	for (let i = 0; i < rounds_it; i++) {
-		// let new_x = Math.sin(a * y) - Math.cos(b * x);
-		// let new_y = Math.sin(c * x) - Math.cos(d * y);
-		// let mapX = p.map(new_x, -2.1, 2.1, 0, p.width * aspectRatioX);
-		// let mapY = p.map(new_y, -2.1, 2.1, 0, p.height * aspectRatioY);
-		// p.point(mapX, mapY);
-		// p.stroke(red, green, blue);
-		// x = new_x;
-		// y = new_y;
 		let mapX = p.map(pointsX[i], -2.1, 2.1, aspectRatioX[0], aspectRatioX[1]);
 		let mapY = p.map(pointsY[i], -2.1, 2.1, aspectRatioY[0], aspectRatioY[1]);
 		p.point(mapX, mapY);
 	}
-	let energy = song.getEnergy();
-	morphSpeed =  energy / 20;
+	//let energy = song.getEnergy();
+	//morphSpeed =  energy / 20;
 	if (morphSpeed < 0.01 && energy >= 0.01)
 		morphSpeed = 0.01; //MAYBE CHANGE  TO 0.02?
 	a = p.lerp(a, targetA, morphSpeed);

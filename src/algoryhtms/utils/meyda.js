@@ -21,7 +21,6 @@ class Song {
 		if (!this.isPlaying) {
 			if (this.startTime >= this.audioElement.duration)
 				this.startTime = 0;
-		this.audioElement.play(); // Play the audio
 		this.audioElement.currentTime = this.startTime;
 		this.isPlaying = true;
 		this.strokeFade = 0;
@@ -29,6 +28,9 @@ class Song {
 		this.fadeoutDone = false;
 		console.log(`Song started`);
 		this.analyze();
+		this.audioElement.play(); // Play the audio
+
+
 		} else {
 		console.log(`Song is already playing`);
 		}
@@ -54,8 +56,7 @@ class Song {
 	analyze() {
 		const bufferLength = this.analyser.frequencyBinCount;
 		const waveform = new Float32Array(bufferLength);
-
-		this.analysisInterval = setInterval(() => {
+		const performAnalysis = () => {
 			this.analyser.getFloatTimeDomainData(waveform);
 			const windowedWaveform = Meyda.windowing(waveform, "blackman");
 			this.rms = Meyda.extract('rms', waveform);
@@ -63,17 +64,16 @@ class Song {
 			this.energy = Meyda.extract('energy', windowedWaveform);
 			this.spectralFlatness = Meyda.extract('spectralFlatness', windowedWaveform);
 			this.spectralRollOff = Meyda.extract('spectralRolloff', windowedWaveform);
-	
-			// Update the previous waveform after processing
+			this.spectralCentroid = Meyda.extract('spectralCentroid', windowedWaveform);
+			this.chroma = Meyda.extract('chroma', windowedWaveform);
 			this.spectralCrest = Meyda.extract('spectralCrest', windowedWaveform);
-			this.zcr = Meyda.extract('zcr', windowedWaveform);
 			this.loudness = Meyda.extract('loudness', windowedWaveform);
 			this.perceptualSpread = Meyda.extract('perceptualSpread', windowedWaveform);
 			this.perceptualSharpness = Meyda.extract('perceptualSharpness', windowedWaveform);
-
-		}, 1000); // Adjust the interval as needed
+		};
+		performAnalysis();
+		this.analysisInterval = setInterval(performAnalysis, 1000);
 	}
-
 	adjustFrameRate(p) {
 		if (this.spectralRollOff){
 			let energyThreshold = 0.005;

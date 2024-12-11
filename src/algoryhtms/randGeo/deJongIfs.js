@@ -21,7 +21,7 @@ function setUpCanvas(p){
 }
 
 export function setupTheme2(p, song) {
-	p.frameRate(30);
+	p.frameRate(60);
 	p.createCanvas(p.windowWidth, p.windowHeight); //p.P2D for anti alias
 	setUpCanvas(p);
 	p.noStroke(); //COULD CHANGE
@@ -43,37 +43,45 @@ function update_color(p, song)
 	p.stroke(red, green, blue);
 }
 
+function fadeTrace(p, song){
+	let threshold = 30;
+	let val = song.spectralCentroid;
+	if (val && val < threshold)
+	{
+		let f = p.map(val, 10, threshold, 1, 20);
+		console.log("update ", f);
+		p.background(0, f);
+	}
+	else
+		p.background(0);
+}
+
 let red, green, blue;
 let rounds_it  = 10000;
 export function drawTheme2(p, song) {
+	// if (!song.energy > 0)
+	// 	return ;
 	range = 2.01;
 	morphSpeed = 0.01;
-	// if (song.backgroundFadeout(p))
-	// 	return ;
-	p.background(0);
-	//p.stroke(red, green, blue, song.getStrokeFadeOut());
+//	p.background(0);
 	p.stroke(255);
 	p.strokeWeight(1.2);
-	// song.adjustScale(p)
-	// song.adjustTrace(p);
-	// song.adjustIterations(p);
 	let pointsX = [], pointsY = [];
 	scaleCanvas(p, song);
+	// console.log(song.spectralCentroid);
+	fadeTrace(p,song);
 	if (!isBoring(pointsX, pointsY, p))
 	{
 		for (let i = 0; i < rounds_it; i++) {
 			let mapX = p.map(pointsX[i], -range, range, aspectRatioX[0], aspectRatioX[1]);
 			let mapY = p.map(pointsY[i], -range, range, aspectRatioY[0], aspectRatioY[1]);
-			// let mapX = p.map(pointsX[i], -2.1, 2.1, aspectRatioX[0], aspectRatioX[1]);
-			// let mapY = p.map(pointsY[i], -2.1, 2.1, aspectRatioY[0], aspectRatioY[1]);
 			scalePoints(i, p, mapX, mapY);
 			p.point(mapX, mapY);
 		}
 		song.adjustFrameRate(p);
-		// console.log(song.loudness);
 	}
 	else
-		morphSpeed *= 3;
+		morphSpeed *= 7;
 	a = p.lerp(a, targetA, morphSpeed);
 	b = p.lerp(b, targetB, morphSpeed);
 	c = p.lerp(c, targetC, morphSpeed);
@@ -92,14 +100,17 @@ function scaleCanvas(p, song){
 	if (val && val > min)
 	{
 		beatFactor = p.map(val, min, 70, 0.1, 1.8);
+		//DRAMA START
 		// range = p.map(val, min, 100, 2.3, 1.6); //DRAMATIC 
 		// rangeUpdated = true;
-
+		//DRAMA END
+		//LIL DRAM START
 		if (val > min + 10)
 		{
-		range = p.map(val, min + 10, 100, 2.1, 1.9); //DRAMATIC 
-		rangeUpdated = true;
+			range = p.map(val, min + 10, 100, 2.1, 1.9); //DRAMATIC 
+			rangeUpdated = true;
 		}
+		//LIL DRAMA END
 	}
 }
 function scalePoints(i, p, mapX, mapY){
@@ -125,7 +136,7 @@ function isBoring(pointsX, pointsY, p)
 {
     if (!Array.isArray(pointsX) || !Array.isArray(pointsY)) {
 		console.log(`ERRROR`);
-        return ;
+        return true;
     }
 	const threshold = 1.5;
 	//1 ok could be lower

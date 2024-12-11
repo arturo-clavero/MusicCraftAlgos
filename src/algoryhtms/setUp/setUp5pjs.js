@@ -11,7 +11,7 @@ export function scene5pjs(theme) {
 	let sliderThumb = document.getElementById('sliderThumb');
 	let isDragging = false;
 	let animationStarted = false;
-	const song = new Song(`swan`);
+	const song = new Song(`swing`);
 	new p5((p) => {
 		p.setup = () => {
 			p.pixelDensity(2);
@@ -39,8 +39,9 @@ export function scene5pjs(theme) {
 				console.log("fading");
 				song.backgroundFadeout(p);
 			}
-			else if (song.isPlaying && (animationStarted || (song.energy && song.energy > 0.0001)))
-			{    
+			else if (song.isPlaying )//&& (animationStarted || (song.energy && song.energy > 0)))
+			{						    
+				// console.log('HELLO');
 				animationStarted = true;
 				switch (theme) {
 					case 1:

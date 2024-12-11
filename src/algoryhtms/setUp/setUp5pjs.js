@@ -14,8 +14,6 @@ export function scene5pjs(theme) {
 	const song = new Song(`swan`);
 	new p5((p) => {
 		p.setup = () => {
-
-			
 			p.pixelDensity(2);
 			switch (theme) {
 				case 1:
@@ -35,14 +33,14 @@ export function scene5pjs(theme) {
 			}
 		};
 		p.draw = () => {
-			console.log(song.audioElement.currentTime, song.audioElement.duration);
-			if (song.audioElement.currentTime >= song.audioElement.duration)
+			//console.log(song.audioElement.currentTime, song.audioElement.duration);
+			if (song.audioElement.currentTime == song.audioElement.duration && !song.fadeoutDone)
 			{
-				console.log('hello');
-				fadeToBlack(p);
+				console.log("fading");
+				song.backgroundFadeout(p);
 			}
 			else if (song.isPlaying && (animationStarted || (song.energy && song.energy > 0.0001)))
-			{
+			{    
 				animationStarted = true;
 				switch (theme) {
 					case 1:
@@ -60,7 +58,8 @@ export function scene5pjs(theme) {
 					default:
 					console.error('Error: invalid theme...');
 				}
-			}			
+			}
+
 		};
 		document.getElementById('startButton').addEventListener('click', () => {
 			song.start();
@@ -92,7 +91,7 @@ export function scene5pjs(theme) {
 			const mouseX = Math.max(0, Math.min(event.clientX - rect.left, rect.width));
 			const percentage = mouseX / rect.width;
 			sliderThumb.style.left = `${percentage * 100}%`;
-			console.log(percentage * song.audioElement.duration);
+			//console.log(percentage * song.audioElement.duration);
 			song.startTime = percentage * song.audioElement.duration;
 			song.isPlaying = false;
 			song.start();
@@ -115,7 +114,7 @@ export function scene5pjs(theme) {
 let fade = 0;
 
 function fadeToBlack(p){
-	fade += 0.05;
+	fade += 0.003;
 	if (fade > 255)
 		return;
 	p.fill(0, fade);

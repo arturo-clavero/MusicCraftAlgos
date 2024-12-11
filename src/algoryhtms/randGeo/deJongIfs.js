@@ -3,7 +3,9 @@ let a, b, c, d;
 let targetA, targetB, targetC, targetD;
 let morphSpeed = 0.01;
 let aspectRatioX, aspectRatioY;
-
+let beatFactor = 0;
+let range;
+let rangeUpdated;
 function setUpCanvas(p){
 	p.pixelDensity(p.displayDensity());
 	aspectRatioX = [0, p.width];
@@ -14,13 +16,13 @@ function setUpCanvas(p){
 	else
 		aspectRatioX = [min, p.width - min];
 	p.background(0);
-	//p.smooth(); 
-    //canvas.position(p.windowWidth / 2 - 200, p.windowHeight / 2 - 200);
+	//p.smooth();
+	//canvas.position(p.windowWidth / 2 - 200, p.windowHeight / 2 - 200);
 }
 
 export function setupTheme2(p, song) {
 	p.frameRate(30);
-	p.createCanvas(p.windowWidth, p.windowHeight, p.P2D); //p.P2D for anti alias
+	p.createCanvas(p.windowWidth, p.windowHeight); //p.P2D for anti alias
 	setUpCanvas(p);
 	p.noStroke(); //COULD CHANGE
 	a = p.random(-p.PI, p.PI);
@@ -31,6 +33,7 @@ export function setupTheme2(p, song) {
 	red = 255;
 	green = 255;
 	blue = 255;
+	rangeUpdated = false;
 }
 
 function update_color(p, song)
@@ -41,19 +44,36 @@ function update_color(p, song)
 }
 
 let red, green, blue;
-let rounds_it  = 5000;
+let rounds_it  = 10000;
 export function drawTheme2(p, song) {
+	range = 2.01;
+	morphSpeed = 0.01;
+	// if (song.backgroundFadeout(p))
+	// 	return ;
 	p.background(0);
-	p.stroke(red, green, blue);
+	//p.stroke(red, green, blue, song.getStrokeFadeOut());
+	p.stroke(255);
+	p.strokeWeight(1.2);
+	// song.adjustScale(p)
+	// song.adjustTrace(p);
+	// song.adjustIterations(p);
 	let pointsX = [], pointsY = [];
-	let x = 0, y = 0;
-	isBoring(pointsX, pointsY, p);
-	for (let i = 0; i < rounds_it; i++) {
-		let mapX = p.map(pointsX[i], -2.1, 2.1, aspectRatioX[0], aspectRatioX[1]);
-		let mapY = p.map(pointsY[i], -2.1, 2.1, aspectRatioY[0], aspectRatioY[1]);
-		p.point(mapX, mapY);
+	scaleCanvas(p, song);
+	if (!isBoring(pointsX, pointsY, p))
+	{
+		for (let i = 0; i < rounds_it; i++) {
+			let mapX = p.map(pointsX[i], -range, range, aspectRatioX[0], aspectRatioX[1]);
+			let mapY = p.map(pointsY[i], -range, range, aspectRatioY[0], aspectRatioY[1]);
+			// let mapX = p.map(pointsX[i], -2.1, 2.1, aspectRatioX[0], aspectRatioX[1]);
+			// let mapY = p.map(pointsY[i], -2.1, 2.1, aspectRatioY[0], aspectRatioY[1]);
+			scalePoints(i, p, mapX, mapY);
+			p.point(mapX, mapY);
+		}
+		song.adjustFrameRate(p);
+		// console.log(song.loudness);
 	}
-	song.adjustFrameRate(p);
+	else
+		morphSpeed *= 3;
 	a = p.lerp(a, targetA, morphSpeed);
 	b = p.lerp(b, targetB, morphSpeed);
 	c = p.lerp(c, targetC, morphSpeed);
@@ -61,7 +81,39 @@ export function drawTheme2(p, song) {
 	if (p.abs(a - targetA) < 0.1 && p.abs(b - targetB) < 0.1 && p.abs(c - targetC) < 0.1 & p.abs(d - targetD) < 0.1)
 		setNewTargets(p);
 }
+function scaleCanvas(p, song){
+	if (rangeUpdated)
+	{
+		rangeUpdated = false;
+		return ;
+	}
+	let min = 33;
+	let val = song.loudness.total;
+	if (val && val > min)
+	{
+		beatFactor = p.map(val, min, 70, 0.1, 1.8);
+		// range = p.map(val, min, 100, 2.3, 1.6); //DRAMATIC 
+		// rangeUpdated = true;
 
+		if (val > min + 10)
+		{
+		range = p.map(val, min + 10, 100, 2.1, 1.9); //DRAMATIC 
+		rangeUpdated = true;
+		}
+	}
+}
+function scalePoints(i, p, mapX, mapY){
+	if ( beatFactor == 0 || i < (rounds_it * .99))
+		return ; 
+	let f = beatFactor;
+	p.strokeWeight(f * 3);
+	p.stroke(255);
+	p.point(mapX, mapY);//white S
+
+	p.stroke(255);
+	p.strokeWeight(f);//white small prep
+}
+ 
 function setNewTargets(p) {
 	targetA = p.random(-p.PI, p.PI);
 	targetB = p.random(-p.PI, p.PI);
@@ -75,8 +127,8 @@ function isBoring(pointsX, pointsY, p)
 		console.log(`ERRROR`);
         return ;
     }
-	const threshold = 0.05;
-	//0.06 ok could be lower
+	const threshold = 1.5;
+	//1 ok could be lower
 	let x = 0, y = 0;
 	for (let i = 0; i < rounds_it + 1; i++) {
 		let new_x = Math.sin(a * y) - Math.cos(b * x);
@@ -94,11 +146,14 @@ function isBoring(pointsX, pointsY, p)
 	let minY = Math.min(...pointsY);
 	let maxY = Math.max(...pointsY);
 	if ((maxX - minX) < threshold && (maxY - minY) < threshold) {
-		console.log('min max...');
-		p.stroke(255, 0, 0);
 		return true;
 	}
-	const tolerance = 0.09;
+	if ((maxX - minX) < 1.7 && (maxY - minY) < 1.7) {
+		console.log('min max...');
+		p.stroke(255, 0, 0);
+	}
+	const tolerance = 1.5;
+	//0.5
 	let isSingleDot = true;
 
 	for (let i = 0; i < rounds_it; i++) {

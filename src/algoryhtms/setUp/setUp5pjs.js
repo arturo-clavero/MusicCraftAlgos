@@ -10,6 +10,7 @@ export function scene5pjs(theme) {
 	let sliderTrack = document.getElementById('sliderTrack');
 	let sliderThumb = document.getElementById('sliderThumb');
 	let isDragging = false;
+	let animationStarted = false;
 	const song = new Song(`swan`);
 	new p5((p) => {
 		p.setup = () => {
@@ -34,8 +35,15 @@ export function scene5pjs(theme) {
 			}
 		};
 		p.draw = () => {
-			if (song.isPlaying && song.energy && song.energy > 0.0001)
+			console.log(song.audioElement.currentTime, song.audioElement.duration);
+			if (song.audioElement.currentTime >= song.audioElement.duration)
 			{
+				console.log('hello');
+				fadeToBlack(p);
+			}
+			else if (song.isPlaying && (animationStarted || (song.energy && song.energy > 0.0001)))
+			{
+				animationStarted = true;
 				switch (theme) {
 					case 1:
 						drawTheme1(p, song);
@@ -52,16 +60,11 @@ export function scene5pjs(theme) {
 					default:
 					console.error('Error: invalid theme...');
 				}
-			}
-			else if (!fadeout)
-				fadeToBlack(p);
-			
-
+			}			
 		};
 		document.getElementById('startButton').addEventListener('click', () => {
 			song.start();
 			fade = 0;
-			fadeout = false;
 		});
 		document.getElementById('stopButton').addEventListener('click', () => {
 			song.stop();
@@ -110,15 +113,11 @@ export function scene5pjs(theme) {
 };
 
 let fade = 0;
-let fadeout = false;
 
 function fadeToBlack(p){
-	fade += 1;
+	fade += 0.05;
 	if (fade > 255)
-	{
-		fadeout = true;
 		return;
-	}
 	p.fill(0, fade);
 	p.noStroke();
 	p.rect(0, 0, p.width, p.height);

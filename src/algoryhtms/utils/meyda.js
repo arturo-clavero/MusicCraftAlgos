@@ -55,17 +55,18 @@ class Song {
 			this.zcr = Meyda.extract('zcr', windowedWaveform);
 			this.energy = Meyda.extract('energy', windowedWaveform);
 			this.spectralFlatness = Meyda.extract('spectralFlatness', windowedWaveform);
-			this.spectralRollOff = Meyda.extract('spectralRolloff', windowedWaveform);
+			this.spectralRollOff = Meyda.extract('spectralRolloff', waveform);
 
 		}, 1000); // Adjust the interval as needed
 	}
 
 	adjustFrameRate(p) {
-		if (this.rms){
+		if (this.spectralRollOff){
 			let newFrameRate = p.map(this.spectralRollOff, 0, 22050, 0, 90);
 			//90 is good consider down to 60;
 			p.frameRate(newFrameRate);
 		}
+		// console.log('energy, ', this.energy);
 	}
 }
 

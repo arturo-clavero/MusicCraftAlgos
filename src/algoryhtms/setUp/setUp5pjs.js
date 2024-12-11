@@ -1,6 +1,5 @@
 import p5 from 'p5';
-import * as Tone from 'tone';
-import Song from "../utils/tone.js"
+import Song from "../utils/meyda.js"
 import { setupTheme1, drawTheme1 } from "../randGeo/lissajousCurves.js";
 import { setupTheme2, drawTheme2, windowResizeTheme2 } from "../randGeo/deJongIfs.js";
 import { setupTheme3, drawTheme3 } from "../flow/perlinNoise.js";
@@ -8,29 +7,34 @@ import { setupTheme4, drawTheme4 } from "../flow/mountains.js";
 
 
 export function scene5pjs(theme) {
-	const song = new Song(`song1`);
+	let sliderTrack = document.getElementById('sliderTrack');
+	let sliderThumb = document.getElementById('sliderThumb');
+	let isDragging = false;
+	const song = new Song(`swan`);
 	new p5((p) => {
 		p.setup = () => {
-		p.pixelDensity(2);
-		switch (theme) {
-			case 1:
-			setupTheme1(p, song);
-			break;
-			case 2:
-			setupTheme2(p, song);
-			break;
-			case 3:
-				setupTheme3(p, song);
-			break;
-			case 4:
-				setupTheme4(p, song);
-			break;
-			default:
-			console.error('Error: invalid theme...');
-		}
+
+			
+			p.pixelDensity(2);
+			switch (theme) {
+				case 1:
+				setupTheme1(p, song);
+				break;
+				case 2:
+				setupTheme2(p, song);
+				break;
+				case 3:
+					setupTheme3(p, song);
+				break;
+				case 4:
+					setupTheme4(p, song);
+				break;
+				default:
+				console.error('Error: invalid theme...');
+			}
 		};
 		p.draw = () => {
-			if (song.isPlaying)
+			if (song.isPlaying && song.energy && song.energy > 0.0001)
 			{
 				switch (theme) {
 					case 1:
@@ -49,10 +53,15 @@ export function scene5pjs(theme) {
 					console.error('Error: invalid theme...');
 				}
 			}
+			else if (!fadeout)
+				fadeToBlack(p);
+			
+
 		};
 		document.getElementById('startButton').addEventListener('click', () => {
-		Tone.start().then(() => {
 			song.start();
+			fade = 0;
+			fadeout = false;
 		});
 		document.getElementById('stopButton').addEventListener('click', () => {
 			song.stop();
@@ -75,6 +84,42 @@ export function scene5pjs(theme) {
 				console.error('Error: invalid theme...');
 			}
 		});
-
+		const updateSliderFromMouse = (event) => {
+			const rect = sliderTrack.getBoundingClientRect();
+			const mouseX = Math.max(0, Math.min(event.clientX - rect.left, rect.width));
+			const percentage = mouseX / rect.width;
+			sliderThumb.style.left = `${percentage * 100}%`;
+			console.log(percentage * song.audioElement.duration);
+			song.startTime = percentage * song.audioElement.duration;
+			song.isPlaying = false;
+			song.start();
+		};
+		sliderThumb.addEventListener('mousedown', () => {
+			isDragging = true;
+		});
+		document.addEventListener('mousemove', (event) => {
+			if (isDragging) {
+				updateSliderFromMouse(event);
+			}
+		});
+		document.addEventListener('mouseup', () => {
+			isDragging = false;
+		});
+		sliderTrack.addEventListener('click', updateSliderFromMouse);
 	});
-})};
+};
+
+let fade = 0;
+let fadeout = false;
+
+function fadeToBlack(p){
+	fade += 1;
+	if (fade > 255)
+	{
+		fadeout = true;
+		return;
+	}
+	p.fill(0, fade);
+	p.noStroke();
+	p.rect(0, 0, p.width, p.height);
+}

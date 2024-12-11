@@ -19,6 +19,7 @@ function setUpCanvas(p){
 }
 
 export function setupTheme2(p, song) {
+	p.frameRate(30);
 	p.createCanvas(p.windowWidth, p.windowHeight, p.P2D); //p.P2D for anti alias
 	setUpCanvas(p);
 	p.noStroke(); //COULD CHANGE
@@ -52,10 +53,7 @@ export function drawTheme2(p, song) {
 		let mapY = p.map(pointsY[i], -2.1, 2.1, aspectRatioY[0], aspectRatioY[1]);
 		p.point(mapX, mapY);
 	}
-	//let energy = song.getEnergy();
-	//morphSpeed =  energy / 20;
-	if (morphSpeed < 0.01 && energy >= 0.01)
-		morphSpeed = 0.01; //MAYBE CHANGE  TO 0.02?
+	song.adjustFrameRate(p);
 	a = p.lerp(a, targetA, morphSpeed);
 	b = p.lerp(b, targetB, morphSpeed);
 	c = p.lerp(c, targetC, morphSpeed);
@@ -77,10 +75,8 @@ function isBoring(pointsX, pointsY, p)
 		console.log(`ERRROR`);
         return ;
     }
-	//THRESHOLD -!
-	const threshold = 0.1;
-	//0.3 ok could be lower
-	//(update....)
+	const threshold = 0.05;
+	//0.06 ok could be lower
 	let x = 0, y = 0;
 	for (let i = 0; i < rounds_it + 1; i++) {
 		let new_x = Math.sin(a * y) - Math.cos(b * x);
@@ -102,10 +98,7 @@ function isBoring(pointsX, pointsY, p)
 		p.stroke(255, 0, 0);
 		return true;
 	}
-	// SINGLE DOT TOLERANCE -!
-	const tolerance = 0.1;
-	//1.9 is too high
-	// (update ...)
+	const tolerance = 0.09;
 	let isSingleDot = true;
 
 	for (let i = 0; i < rounds_it; i++) {
@@ -119,7 +112,6 @@ function isBoring(pointsX, pointsY, p)
 		p.stroke(0, 0, 255);
 		return true;
 	}
-	// console.log(`maxX - minX ${maxX - minX}, maxY - minY ${maxY - minY}`);
 	return false;
 }
 

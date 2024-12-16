@@ -6,7 +6,7 @@ import { setupTheme3, drawTheme3 } from "../flow/perlinNoise.js";
 import { setupTheme4, drawTheme4 } from "../flow/mountains.js";
 
 const parametersString = `{
-	"color": "#FF0000",
+	"color": "#FF00FF",
 	"animationSpeed": "default",
 	"waveformStyle": "circle",
 	"amplitudeSensitivity": 4,

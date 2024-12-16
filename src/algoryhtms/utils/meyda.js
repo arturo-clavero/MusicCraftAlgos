@@ -21,7 +21,7 @@ class Song {
 		  this.frequencySensitivity =
 			parsedParameters.frequencySensitivity === "default" || !parsedParameters.frequencySensitivity
 			  ? REAL_DEFAULTS.frequencySensitivity
-			  : parseSensitivity(parsedParameters.amplitudeSensitivity);
+			  : parseSensitivity(parsedParameters.frequencySensitivity);
 		this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
 		this.audioElement = new Audio(this.location);
 		this.audioSourceNode = this.audioContext.createMediaElementSource(this.audioElement);

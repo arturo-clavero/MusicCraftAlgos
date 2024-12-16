@@ -161,7 +161,6 @@ function isBoring(pointsX, pointsY, p)
 	}
 	if (isSingleDot) {
 		console.log('single dot...');
-		p.stroke(0, 0, 255);
 		return true;
 	}
 	return false;
